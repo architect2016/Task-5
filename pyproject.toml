@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "task 5"
+version = "0.1.0"
+description = ""
+authors = ["architect2016 <dnepr.life@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+httpx = "^0.27.0"
+aiohttp = "^3.9.3"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

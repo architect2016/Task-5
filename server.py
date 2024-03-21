@@ -3,7 +3,8 @@ import logging
 import httpx
 import websockets
 import names
-import json
+from aiofile import async_open
+from aiopath import AsyncPath
 from datetime import datetime, timedelta
 from websockets import WebSocketServerProtocol
 from websockets.exceptions import ConnectionClosedOK
@@ -36,6 +37,11 @@ async def get_exchange_per_day(index_day):
         return response
     except Exception as e:
         return f"Помилка отримання курсу за день {index_day}: {str(e)}"
+
+
+async def log_exchange_command(message):
+    async with async_open('exchange_logs.txt', 'a') as f:
+        await f.write(f"Команда {message} виконана: {datetime.now()}\n")
 
 
 async def list_currency(r):
@@ -85,11 +91,18 @@ class Server:
     async def distrubute(self, ws: WebSocketServerProtocol):
         async for message in ws:
             if message == "exchange":
+                #++++++++++++++++
+                await log_exchange_command(message)
+                #+++++++++++++++++
                 exchange = await get_exchange()
                 await self.send_to_clients(exchange)
             elif message == "Hello server":
+                await log_exchange_command(message)
                 await self.send_to_clients("Привіт мої карапузи!")
             elif message.startswith("exchange "):
+                # ++++++++++++++++
+                await log_exchange_command(message)
+                # ++++++++++++++++
                 index_day = message.split()[1]
                 t = int(index_day)
                 lst = []
@@ -101,30 +114,11 @@ class Server:
                         a = {r["date"]: await list_currency(r)}
                         lst.append(a)
                 await self.send_to_clients(str(lst))
-
-
-
-
-
-            # elif message.startswith("exchange "):
-            #     index_day = message.split()[1]
-            #     t = int(index_day)
-            #     lst = []
-            #     for i in range(t):
-            #         r = await get_exchange_per_day(str(i))
-            #         a = {r["date"]: await list_currency(r)}
-            #         lst.append(a)
-            #     await self.send_to_clients(str(lst))
-
-
-
-
-
-
                 # r = await get_exchange_per_day(index_day)
                 # a = {r["date"]: await list_currency(r)}
                 # await self.send_to_clients(str(a))
             else:
+                await log_exchange_command("листування")
                 await self.send_to_clients(f"{ws.name}: {message}")
 
 

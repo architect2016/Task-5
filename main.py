@@ -32,8 +32,8 @@ async def main(index_day):
         return None
 
 
-def list_currency():
-    list_currency_name = ["EUR", "USD"]
+def list_currency(new_currency):
+    list_currency_name = ["EUR", "USD",new_currency]
     currency_exchange = {'sale': None, 'purchase': None}
     currency_exchange_name = {}
     for currency_name in list_currency_name:
@@ -42,6 +42,7 @@ def list_currency():
                 currency_exchange['sale'] = currency["saleRateNB"]
                 currency_exchange['purchase'] = currency["purchaseRateNB"]
                 currency_exchange_name[currency_name] = currency_exchange
+                break
     return currency_exchange_name
 
 
@@ -51,11 +52,16 @@ if __name__ == '__main__':
 
     index = int(input("Введіть протягом скількох останніх днів вас цікавить курс: "))
     if 0 <= index <=10:
+        is_new_currency = input("Чи хочете ви дізнатись курс валют крім EUR та USD (Y/N): ")
+        if is_new_currency == "Y":
+            new_currency_name = input("Виберіть з наявних CHF, GBP, PLZ, SEK, CAD: ")
+        else:
+            new_currency_name = "_"
+
         for i in range(index):
             r = asyncio.run(main(i))
-            list_currency()
             now = datetime.now()
-            a = {r["date"]: list_currency()}
+            a = {r["date"]: list_currency(new_currency_name)}
             # lst.append(a)
             print(a)
     else:
